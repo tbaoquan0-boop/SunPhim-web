@@ -1,0 +1,23 @@
+# Caddyfile - Reverse proxy cho SunPhim
+# Auto HTTPS qua Let's Encrypt
+
+sunphim.example.com {
+    reverse_proxy localhost:5000
+
+    # Bao mat header
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # Nen gzip
+    encode gzip zstd
+
+    # Log
+    log {
+        output file /var/log/caddy/sunphim.log
+    }
+}

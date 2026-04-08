@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">SunPhim - Đang tải...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/netflix.css">
+</head>
+<body class="player-page">
+    <div class="player-container">
+        <!-- Breadcrumb -->
+        <div class="player-controls">
+            <div class="player-info">
+                <a href="/" style="color: var(--text-secondary); font-size: 0.85rem;">‹ Quay lại</a>
+                <span class="player-title" id="playerTitle">Đang tải...</span>
+            </div>
+            <div class="player-nav" id="playerNav">
+                <button class="player-nav-btn" id="prevEpisode" disabled>‹ Tập trước</button>
+                <button class="player-nav-btn" id="nextEpisode" disabled>Tập sau ›</button>
+            </div>
+        </div>
+
+        <!-- Player Wrapper -->
+        <div class="player-wrapper" id="playerWrapper">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Episode List Below Player -->
+        <div class="episodes-mini-list" id="episodesMiniList"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const episodeId = params.get('episode');
+            const movieSlug = params.get('movie');
+
+            if (!episodeId || !movieSlug) {
+                document.getElementById('playerWrapper').innerHTML = `
+                    <div class="player-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <p>Không tìm thấy tập phim</p>
+                    </div>
+                `;
+                return;
+            }
+
+            loadEpisodePlayer(movieSlug, parseInt(episodeId));
+        });
+    </script>
+</body>
+</html>

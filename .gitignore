@@ -1,0 +1,109 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# .NET
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*._dotnet
+*.local
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# IDE / Editor
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# Visual Studio
+.vs/
+*.rsuser
+*.suo
+*.user
+*.sln.iml
+*.rsproj.user
+
+# ASP.NET Core specific
+wwwroot/lib/
+wwwroot/node_modules/
+
+# Node (nếu có frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Sensitive config (GIỮ appsettings.json và appsettings.Development.json nhưng bỏ secrets)
+# Bỏ qua user-specific secrets
+appsettings.*.local.json
+appsettings.*.override.json
+
+# Docker
+.docker/
+
+# Logs
+*.log
+Logs/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Misc
+*.tmp
+*.temp
+*.cache
+*.swp
+*~
+
+# Secrets (tuyệt đối không push lên git)
+*.pem
+*.key
+*.pfx
+*.cer
+.env
+.env.*
+!.env.example
+
+# Migrations tự động (nếu muốn commit thì bỏ comment dòng dưới)
+# [Mm]igrations/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og*
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# SonarQube
+.sonarqube/
+
+# Database backups (nếu có)
+*.bak
+*.sql.backup

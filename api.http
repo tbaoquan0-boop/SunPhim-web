@@ -1,0 +1,5 @@
+
+DELETE http://localhost:5162/api/seed
+
+
+POST http://localhost:5162/api/seed

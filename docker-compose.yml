@@ -1,0 +1,85 @@
+version: "3.9"
+
+services:
+  sunphim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sunphim
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SunPhimDb;User Id=sa;Password=SunPhim_SecurePass_2024!;TrustServerCertificate=True;Encrypt=True;
+      - Redis__ConnectionString=redis:6379
+      - App__BaseUrl=https://sunphim.example.com
+      - Streaming__HotlinkSecret=${HOTLINK_SECRET:-change-me-in-production}
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - sunphim-net
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sunphim-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=SunPhim_SecurePass_2024!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "SunPhim_SecurePass_2024!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - sunphim-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: sunphim-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - sunphim-net
+
+  # Caddy: Reverse proxy + Auto HTTPS (thay the cho nginx)
+  caddy:
+    image: caddy:2-alpine
+    container_name: sunphim-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - sunphim
+    restart: unless-stopped
+    networks:
+      - sunphim-net
+
+volumes:
+  sqlserver-data:
+  redis-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  sunphim-net:
+    driver: bridge
