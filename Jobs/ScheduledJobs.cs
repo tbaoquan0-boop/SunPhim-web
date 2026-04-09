@@ -1,47 +1,72 @@
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using SunPhim.Data;
+using SunPhim.Models.Crawler;
 using SunPhim.Services.Crawler;
 
 namespace SunPhim.Jobs;
 
 [DisallowConcurrentExecution]
-public class OphimCrawlJob : IJob
+public class NguonCCrawlJob : IJob
 {
-    private readonly IOphimService _ophim;
-    private readonly ILogger<OphimCrawlJob> _log;
+    private readonly INguonCService _nguonc;
+    private readonly ILogger<NguonCCrawlJob> _log;
 
-    public OphimCrawlJob(IOphimService ophim, ILogger<OphimCrawlJob> log)
+    public NguonCCrawlJob(INguonCService nguonc, ILogger<NguonCCrawlJob> log)
     {
-        _ophim = ophim;
+        _nguonc = nguonc;
         _log = log;
     }
 
     public async Task Execute(IJobExecutionContext context)
     {
         var jobType = context.MergedJobDataMap.GetString("JobType") ?? "incremental";
-        _log.LogInformation("OphimCrawlJob started: {JobType}", jobType);
+        _log.LogInformation("NguonCCrawlJob started: {JobType}", jobType);
 
         try
         {
             CrawlResult result;
-            if (jobType == "full")
+            switch (jobType)
             {
-                var synced = await _ophim.SyncAllPagesAsync(10);
-                result = CrawlResult.Ok(msg: $"Synced {synced} pages");
-            }
-            else
-            {
-                var page = int.TryParse(context.MergedJobDataMap.GetString("Page") ?? "1", out var p) ? p : 1;
-                result = await _ophim.CrawlNewUpdatesAsync(page);
+                case "full":
+                {
+                    // Lay tat ca phim: Phim bo + Phim le + Phim chieu rap (khong gioi han trang)
+                    var lists = new[] { "phim-bo", "phim-le", "phim-chieu-rap" };
+                    int totalNew = 0, totalUpd = 0, totalEp = 0;
+                    foreach (var list in lists)
+                    {
+                        _log.LogInformation("Crawl full danh muc: {List}", list);
+                        var r = await _nguonc.CrawlFullDanhSachAsync(
+                            NguonCApiPaths.DanhSach(list), context.CancellationToken);
+                        if (r.Success)
+                        {
+                            totalNew += r.NewMovies;
+                            totalUpd += r.UpdatedMovies;
+                            totalEp += r.EpisodesProcessed;
+                        }
+                    }
+                    result = CrawlResult.Ok(newMovies: totalNew, updated: totalUpd, episodes: totalEp,
+                        msg: $"Full crawl: {totalNew} moi, {totalUpd} cap nhat, {totalEp} tap");
+                    break;
+                }
+                case "incremental":
+                {
+                    // Chi lay 1 trang phim moi cap nhat
+                    var page = int.TryParse(context.MergedJobDataMap.GetString("Page") ?? "1", out var p) ? p : 1;
+                    result = await _nguonc.CrawlNewUpdatesAsync(page, context.CancellationToken);
+                    break;
+                }
+                default:
+                    result = CrawlResult.Fail($"Unknown jobType: {jobType}");
+                    break;
             }
 
-            _log.LogInformation("OphimCrawlJob completed: {Message}", result.Message);
+            _log.LogInformation("NguonCCrawlJob completed: {Message}", result.Message);
             context.Result = result;
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "OphimCrawlJob failed");
+            _log.LogError(ex, "NguonCCrawlJob failed");
             throw new JobExecutionException(ex, refireImmediately: false);
         }
     }

@@ -22,6 +22,109 @@ namespace SunPhim.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SunPhim.Models.AdSlot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PageUrlPattern")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Position");
+
+                    b.ToTable("AdSlots");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.Banner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdSlotId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AltText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdSlotId");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("Banners");
+                });
+
             modelBuilder.Entity("SunPhim.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -158,6 +261,12 @@ namespace SunPhim.Migrations
                     b.Property<string>("Quality")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RatingCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -187,14 +296,30 @@ namespace SunPhim.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("ExternalId");
+
+                    b.HasIndex("ImdbScore");
+
+                    b.HasIndex("Rating");
 
                     b.HasIndex("Slug")
                         .IsUnique();
 
                     b.HasIndex("Type");
 
+                    b.HasIndex("UpdatedAt");
+
                     b.HasIndex("Year");
+
+                    b.HasIndex("IsPublished", "ImdbScore");
+
+                    b.HasIndex("IsPublished", "Rating");
+
+                    b.HasIndex("IsPublished", "UpdatedAt");
+
+                    b.HasIndex("Type", "IsPublished", "UpdatedAt");
 
                     b.ToTable("Movies");
                 });
@@ -212,6 +337,79 @@ namespace SunPhim.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("MovieCategories");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.UserRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieId");
+
+                    b.HasIndex("UserId", "MovieId")
+                        .IsUnique();
+
+                    b.ToTable("UserRatings");
                 });
 
             modelBuilder.Entity("SunPhim.Models.WatchHistory", b =>
@@ -237,8 +435,8 @@ namespace SunPhim.Migrations
                     b.Property<string>("UserAgent")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("WatchedAt")
                         .HasColumnType("datetime2");
@@ -254,6 +452,17 @@ namespace SunPhim.Migrations
                     b.HasIndex("WatchedAt");
 
                     b.ToTable("WatchHistories");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.Banner", b =>
+                {
+                    b.HasOne("SunPhim.Models.AdSlot", "AdSlot")
+                        .WithMany("Banners")
+                        .HasForeignKey("AdSlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AdSlot");
                 });
 
             modelBuilder.Entity("SunPhim.Models.Episode", b =>
@@ -286,6 +495,25 @@ namespace SunPhim.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("SunPhim.Models.UserRating", b =>
+                {
+                    b.HasOne("SunPhim.Models.Movie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SunPhim.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SunPhim.Models.WatchHistory", b =>
                 {
                     b.HasOne("SunPhim.Models.Episode", "Episode")
@@ -299,9 +527,21 @@ namespace SunPhim.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SunPhim.Models.User", "User")
+                        .WithMany("WatchHistories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Episode");
 
                     b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.AdSlot", b =>
+                {
+                    b.Navigation("Banners");
                 });
 
             modelBuilder.Entity("SunPhim.Models.Category", b =>
@@ -314,6 +554,11 @@ namespace SunPhim.Migrations
                     b.Navigation("Episodes");
 
                     b.Navigation("MovieCategories");
+                });
+
+            modelBuilder.Entity("SunPhim.Models.User", b =>
+                {
+                    b.Navigation("WatchHistories");
                 });
 #pragma warning restore 612, 618
         }

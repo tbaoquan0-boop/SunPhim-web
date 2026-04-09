@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SunPhim - Xem phim online chất lượng cao, cập nhật nhanh nhất. Phim mới, phim hay, vietsub, thuyết minh hoàn toàn miễn phí.">
+    <meta name="keywords" content="xem phim online, phim vietsub, phim thuyết minh, sunphim, phim mới, phim hay">
+    <meta property="og:title" content="SunPhim - Xem Phim Online Chất Lượng Cao">
+    <meta property="og:description" content="SunPhim - Xem phim online chất lượng cao, cập nhật nhanh nhất.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#141414">
+    <title>SunPhim - Xem Phim Online Chất Lượng Cao</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/netflix.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 3h16a1 1 0 0 1 1 1v4.5a2.5 2.5 0 0 1-5 0V5H4v13h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1H4V4a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    SunPhim
+                </a>
+                <nav class="nav-main" id="navMain">
+                    <a href="/" class="nav-link active" data-nav="home">Trang chủ</a>
+                    <a href="/phim-bo" class="nav-link" data-nav="series">Phim bộ</a>
+                    <a href="/phim-le" class="nav-link" data-nav="single">Phim lẻ</a>
+                    <a href="/the-loai" class="nav-link" data-nav="genres">Thể loại</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="header-search">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm phim..." autocomplete="off">
+                    <button class="search-btn" id="searchBtn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </button>
+                </div>
+                <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="/" class="mobile-nav-link" data-nav="home">Trang chủ</a>
+            <a href="/phim-bo" class="mobile-nav-link" data-nav="series">Phim bộ</a>
+            <a href="/phim-le" class="mobile-nav-link" data-nav="single">Phim lẻ</a>
+            <a href="/the-loai" class="mobile-nav-link" data-nav="genres">Thể loại</a>
+        </div>
+    </header>
+
+    <div id="homeShell">
+    <!-- Hero Carousel Section -->
+    <section class="hero-carousel" id="heroCarousel">
+        <div class="hero-carousel-track" id="heroTrack">
+            <!-- Slides duoc tao dong bo luc loadHomePage -->
+        </div>
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators" id="carouselIndicators"></div>
+        <!-- Carousel Controls -->
+        <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Trước">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Tiếp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </button>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Continue Watching -->
+        <section class="section" id="continueWatchingSection" style="display:none;">
+            <div class="section-header">
+                <h2 class="section-title">Tiếp tục xem</h2>
+                <a href="/lich-su" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="continue-watching" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="continueWatching"></div>
+                <button class="movie-row-nav nav-next" data-target="continue-watching" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- Trending -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Xu hướng</h2>
+                <a href="/xuhuong" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="trending" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="trending"></div>
+                <button class="movie-row-nav nav-next" data-target="trending" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- New Releases -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Phim mới cập nhật</h2>
+                <a href="/phim-moi" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="new-releases" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="newReleases"></div>
+                <button class="movie-row-nav nav-next" data-target="new-releases" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- Top Rated -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Điểm cao</h2>
+                <a href="/top-rated" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="top-rated" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="topRated"></div>
+                <button class="movie-row-nav nav-next" data-target="top-rated" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- Phim Bộ -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Phim bộ</h2>
+                <a href="/phim-bo" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="series" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="series"></div>
+                <button class="movie-row-nav nav-next" data-target="series" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- Phim Lẻ -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Phim lẻ</h2>
+                <a href="/phim-le" class="section-link">
+                    Xem tất cả
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="movie-row">
+                <button class="movie-row-nav nav-prev" data-target="singles" aria-label="Lùi">‹</button>
+                <div class="movie-row-inner" id="singles"></div>
+                <button class="movie-row-nav nav-next" data-target="singles" aria-label="Tiến">›</button>
+            </div>
+        </section>
+
+        <!-- Category Sections -->
+        <div id="categorySections"></div>
+    </main>
+    </div>
+
+    <!-- Browse Shell -->
+    <div id="browseShell" class="browse-shell" hidden>
+        <div class="browse-inner">
+            <div class="browse-toolbar">
+                <h1 class="browse-title" id="browseTitle">Đang tải…</h1>
+                <p class="browse-subtitle" id="browseSubtitle" hidden></p>
+            </div>
+            <div class="genre-chips-wrap" id="genreChipsWrap">
+                <span class="genre-chips-label">Thể loại</span>
+                <div class="genre-chips" id="genreChips"></div>
+            </div>
+            <div class="movie-grid-browse" id="browseGrid"></div>
+            <p class="browse-empty" id="browseEmpty" hidden>Chưa có phim trong mục này.</p>
+        </div>
+    </div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-inner">
+            <button class="search-overlay-close" id="searchOverlayClose" aria-label="Đóng">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <input type="text" class="search-overlay-input" id="searchOverlayInput" placeholder="Nhập tên phim..." autocomplete="off">
+            <div class="search-results" id="searchResults">
+                <div class="search-no-results">Nhập từ khóa để tìm kiếm phim</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SunPhim</h4>
+                <a href="/about">Giới thiệu</a>
+                <a href="/contact">Liên hệ</a>
+                <a href="/faq">Câu hỏi thường gặp</a>
+            </div>
+            <div class="footer-section">
+                <h4>Thể loại</h4>
+                <a href="/the-loai/hanh-dong">Hành động</a>
+                <a href="/the-loai/hai-huoc">Hài hước</a>
+                <a href="/the-loai/tinh-cam">Tình cảm</a>
+                <a href="/the-loai/co-trang">Cổ trang</a>
+            </div>
+            <div class="footer-section">
+                <h4>Trợ giúp</h4>
+                <a href="/help">Trung tâm trợ giúp</a>
+                <a href="/terms">Điều khoản sử dụng</a>
+                <a href="/privacy">Chính sách bảo mật</a>
+            </div>
+            <div class="footer-section">
+                <h4>Theo dõi</h4>
+                <a href="https://facebook.com" target="_blank" rel="noopener">Facebook</a>
+                <a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://t.me" target="_blank" rel="noopener">Telegram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 SunPhim. Mọi nội dung được tổng hợp từ các nguồn công khai.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/js/api.js?v=20260409"></script>
+    <script src="/js/app.js?v=20260409"></script>
+</body>
+</html>

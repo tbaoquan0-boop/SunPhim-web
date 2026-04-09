@@ -1,5 +1,17 @@
+### SunPhim — doi port neu can (VS Code REST Client / Rider)
+@host = http://localhost:5000
 
-DELETE http://localhost:5162/api/seed
+### Crawl 1 trang phim moi cap nhat
+POST {{host}}/api/crawler/sync?page=1
 
+### Crawl nhieu trang (1 + tiep theo den maxPages)
+POST {{host}}/api/crawler/run-now?maxPages=5
 
-POST http://localhost:5162/api/seed
+### Crawl nhieu trang (chi dem so trang da goi API list)
+POST {{host}}/api/crawler/sync/all?maxPages=10
+
+### Xoa het phim + nhap lai N trang
+DELETE {{host}}/api/crawler/reset?pages=5&startCrawl=true
+
+### Chi xoa DB, khong crawl
+DELETE {{host}}/api/crawler/reset?startCrawl=false

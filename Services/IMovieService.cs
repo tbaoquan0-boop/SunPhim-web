@@ -10,9 +10,9 @@ public interface IMovieService
     Task<Movie?> GetBySlugAsync(string slug);
     Task<MovieDetailDto?> GetDetailBySlugAsync(string slug, string baseUrl);
     Task<IEnumerable<MovieListDto>> GetListDtoAsync(int page = 1, int pageSize = 20);
-    Task<IEnumerable<Movie>> GetByTypeAsync(string type);
-    Task<IEnumerable<Movie>> GetByCategoryAsync(string categorySlug);
-    Task<IEnumerable<Movie>> SearchAsync(string keyword);
+    Task<IEnumerable<MovieListDto>> GetByTypeAsync(string type, string baseUrl);
+    Task<IEnumerable<MovieListDto>> GetByCategoryAsync(string categorySlug, string baseUrl);
+    Task<IEnumerable<MovieListDto>> SearchAsync(string keyword, string baseUrl);
     Task<Movie> CreateAsync(Movie movie);
     Task<Movie?> UpdateAsync(int id, Movie movie);
     Task<bool> DeleteAsync(int id);
@@ -26,5 +26,5 @@ public interface IMovieService
     Task<List<MovieListDto>> GetTopRatedMoviesAsync(string baseUrl, int limit = 20);
     Task<List<MovieListDto>> GetRandomFeaturedMoviesAsync(string baseUrl, int count = 5);
     Task<List<CategorySection>> GetMoviesByCategoryAsync(string baseUrl, int limit = 12);
-    Task<List<MovieListDto>> GetContinueWatchingAsync(string userId, string baseUrl, int limit = 10);
+    Task<List<MovieListDto>> GetContinueWatchingAsync(int? userId, string baseUrl, int limit = 10);
 }

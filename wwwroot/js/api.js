@@ -12,13 +12,15 @@ const API = {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const text = await response.text().catch(() => '');
+                throw new Error(text || `HTTP ${response.status}: ${response.statusText}`);
             }
 
             return await response.json();
         } catch (error) {
             console.error('API Error:', error);
-            throw error;
+            const msg = error instanceof Error ? error.message : String(error ?? 'Loi mang hoac API');
+            throw new Error(msg);
         }
     },
 
@@ -111,8 +113,17 @@ const API = {
     },
 
     image: {
-        proxyUrl(url, width = 500) {
-            return `${API.baseUrl}/image/proxy?url=${encodeURIComponent(url)}&width=${width}`;
+        /**
+         * @param {string} url
+         * @param {number} width
+         * @param {string|number} [entityId] id phim (hoac tap) — them &v= de tranh browser/CDN gop cache sai giua nhieu anh
+         */
+        proxyUrl(url, width = 500, entityId) {
+            let q = `url=${encodeURIComponent(url)}&width=${width}`;
+            if (entityId != null && entityId !== '') {
+                q += `&cid=${encodeURIComponent(String(entityId))}`;
+            }
+            return `${API.baseUrl}/image/proxy?${q}`;
         }
     }
 };
@@ -186,24 +197,40 @@ const UTILS = {
         }, 3000);
     },
 
-    buildImageUrl(url, width = 300) {
+    /** Uu tien thumb (the loai card / episode). */
+    pickThumbFirst(movie) {
+        if (!movie) return '';
+        return movie.thumb || movie.poster || movie.Thumb || movie.Poster || '';
+    },
+
+    /** Uu tien poster (hero / detail). */
+    pickPosterFirst(movie) {
+        if (!movie) return '';
+        return movie.poster || movie.thumb || movie.Poster || movie.Thumb || '';
+    },
+
+    /**
+     * @param {string} url
+     * @param {number} width
+     * @param {string|number} [cacheEntityId] id phim — chi dung cho proxy URL, khong anh huong noi dung anh
+     */
+    buildImageUrl(url, width = 300, cacheEntityId) {
         if (!url) return '/img/placeholder.svg';
 
         if (url.startsWith('http')) {
-            // Cho phep load truc tiep tu cac host duoc phep
-            const allowedHosts = [
-                'img.ophim.live',
+            // Host cho phep load truc tiep (CDN/TMDB khong chan hotlink).
+            // phim.nguonc.com KHONG duoc load truc tiep: server chan referrer ngoai -> luon qua /api/image/proxy.
+            const directAllowedHosts = [
                 'image.tmdb.org',
                 'm.media-imdb.com',
                 'upload.wikimedia.org',
                 'vignette.wikia.nocookie.net'
             ];
             const hostname = new URL(url).hostname;
-            if (allowedHosts.some(h => hostname === h || hostname.endsWith('.' + h))) {
+            if (directAllowedHosts.some(h => hostname === h || hostname.endsWith('.' + h))) {
                 return url;
             }
-            // Nhung host khac thi qua proxy
-            return API.image.proxyUrl(url, width);
+            return API.image.proxyUrl(url, width, cacheEntityId);
         }
         return url;
     },
@@ -213,5 +240,18 @@ const UTILS = {
         if (score >= 8) return 'high';
         if (score >= 6) return 'medium';
         return 'low';
+    },
+
+    /** Anh theo id phim — server doc dung Thumb/Poster trong DB. Query r bust cache khi crawl doi. */
+    movieThumbById(movie, size = 300) {
+        if (!movie?.id) return UTILS.buildImageUrl(UTILS.pickThumbFirst(movie), size, movie?.slug ?? '');
+        const r = movie.updatedAt ? new Date(movie.updatedAt).getTime() : '';
+        return `${API.baseUrl}/image/thumb/${movie.id}?size=${size}${r ? `&r=${r}` : ''}`;
+    },
+
+    moviePosterById(movie, width = 1920) {
+        if (!movie?.id) return UTILS.buildImageUrl(UTILS.pickPosterFirst(movie), width, movie?.slug ?? '');
+        const r = movie.updatedAt ? new Date(movie.updatedAt).getTime() : '';
+        return `${API.baseUrl}/image/poster/${movie.id}?width=${width}${r ? `&r=${r}` : ''}`;
     }
 };

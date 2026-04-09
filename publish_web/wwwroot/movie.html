@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" id="metaDescription" content="Xem phim online chất lượng cao">
+    <meta property="og:title" id="ogTitle" content="SunPhim">
+    <meta property="og:description" id="ogDescription" content="">
+    <meta property="og:image" id="ogImage" content="">
+    <meta property="og:type" content="video.movie">
+    <title id="pageTitle">SunPhim - Đang tải...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/netflix.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 3h16a1 1 0 0 1 1 1v4.5a2.5 2.5 0 0 1-5 0V5H4v13h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1H4V4a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    SunPhim
+                </a>
+                <nav class="nav-main" id="navMain">
+                    <a href="/" class="nav-link" data-nav="home">Trang chủ</a>
+                    <a href="/phim-bo" class="nav-link" data-nav="series">Phim bộ</a>
+                    <a href="/phim-le" class="nav-link" data-nav="single">Phim lẻ</a>
+                    <a href="/the-loai" class="nav-link" data-nav="genres">Thể loại</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="header-search">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm phim..." autocomplete="off">
+                    <button class="search-btn" id="searchBtn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </button>
+                </div>
+                <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-nav" id="mobileNav">
+            <a href="/" class="mobile-nav-link" data-nav="home">Trang chủ</a>
+            <a href="/phim-bo" class="mobile-nav-link" data-nav="series">Phim bộ</a>
+            <a href="/phim-le" class="mobile-nav-link" data-nav="single">Phim lẻ</a>
+            <a href="/the-loai" class="mobile-nav-link" data-nav="genres">Thể loại</a>
+        </div>
+    </header>
+
+    <!-- Detail Hero -->
+    <section class="detail-hero" id="detailHero">
+        <div class="detail-hero-content">
+            <div class="detail-poster">
+                <img id="detailPoster" src="/img/placeholder.svg" alt="" referrerpolicy="no-referrer" onerror="this.src='/img/placeholder.svg'">
+            </div>
+            <div class="detail-info">
+                <h1 class="detail-title" id="detailTitle">Đang tải...</h1>
+                <p class="detail-original-title" id="detailOriginName"></p>
+                <div class="detail-meta" id="detailMeta"></div>
+                <div class="detail-tags" id="detailTags"></div>
+                <div class="detail-actions" id="detailActions"></div>
+                <p class="detail-description" id="detailDescription"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Episodes Section -->
+    <section class="episodes-section" id="episodesSection">
+        <div class="episodes-header">
+            <h2 class="episodes-title" id="episodesTitle">Danh sách tập</h2>
+            <div class="episodes-nav">
+                <select id="seasonSelect" class="episode-season-select" style="display:none;"></select>
+            </div>
+        </div>
+        <div class="episodes-grid" id="episodesGrid">
+            <div class="loading-spinner"></div>
+        </div>
+    </section>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-inner">
+            <button class="search-overlay-close" id="searchOverlayClose" aria-label="Đóng">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <input type="text" class="search-overlay-input" id="searchOverlayInput" placeholder="Nhập tên phim..." autocomplete="off">
+            <div class="search-results" id="searchResults">
+                <div class="search-no-results">Nhập từ khóa để tìm kiếm phim</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Schema Markup -->
+    <script type="application/ld+json" id="schemaMarkup"></script>
+
+    <script src="/js/api.js?v=20260409"></script>
+    <script src="/js/app.js?v=20260409"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            let slug = params.get('slug');
+            if (!slug) {
+                slug = window.location.pathname.split('/phim/')[1]?.split('/')[0];
+            }
+            if (!slug) {
+                window.location.href = '/';
+                return;
+            }
+            if (typeof setActiveNavForPath === 'function') {
+                setActiveNavForPath(window.location.pathname);
+            }
+            loadMovieDetail(slug);
+        });
+    </script>
+</body>
+</html>

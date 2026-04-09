@@ -1,0 +1,129 @@
+// ============================================================
+// SunPhim — Login Page
+// ============================================================
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Film, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { login } from "@/lib/api";
+import { useAuthStore } from "@/lib/store";
+import { useToastStore } from "@/components/ui/Toast";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { setAuth } = useAuthStore();
+  const { addToast } = useToastStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email.trim() || !password) {
+      setError("Vui lòng nhập đầy đủ email và mật khẩu.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const res = await login({ email: email.trim(), password });
+      setAuth(res.user, res.token);
+      addToast("Đăng nhập thành công!", "success");
+      router.push("/");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#141414] pt-14 px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/" className="flex items-center gap-2 mb-4">
+            <Film className="w-9 h-9 text-[#e50914]" />
+            <span className="text-2xl font-bold text-white">
+              Sun<span className="text-[#e50914]">Phim</span>
+            </span>
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Đăng nhập</h1>
+          <p className="text-sm text-[#808080] mt-1">
+            Chào mừng bạn quay trở lại!
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-red-900/30 border border-red-500/30 rounded-md text-sm text-red-400">
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-[#b3b3b3] mb-1.5">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="email@example.com"
+              className="w-full h-11 px-4 bg-[#1f1f1f] border border-white/10 rounded-md text-white placeholder-[#808080] focus:outline-none focus:border-[#e50914] transition-colors text-sm"
+              autoComplete="email"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#b3b3b3] mb-1.5">
+              Mật khẩu
+            </label>
+            <div className="relative">
+              <input
+                type={showPw ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full h-11 px-4 pr-11 bg-[#1f1f1f] border border-white/10 rounded-md text-white placeholder-[#808080] focus:outline-none focus:border-[#e50914] transition-colors text-sm"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] hover:text-white transition-colors"
+              >
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-11 bg-[#e50914] hover:bg-[#b20710] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-md transition-colors text-sm"
+          >
+            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-[#808080] mt-6">
+          Chưa có tài khoản?{" "}
+          <Link href="/auth/register" className="text-[#e50914] hover:underline font-medium">
+            Đăng ký ngay
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

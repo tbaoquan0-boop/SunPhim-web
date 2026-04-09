@@ -50,6 +50,16 @@ public class Movie
     public double? ImdbScore { get; set; }
 
     /// <summary>
+    /// Điểm đánh giá nội bộ (tính từ lượt đánh giá thực tế, độc lập với IMDB)
+    /// </summary>
+    public double? Rating { get; set; }
+
+    /// <summary>
+    /// Tổng số lượt đánh giá (dùng cho tính Rating)
+    /// </summary>
+    public int RatingCount { get; set; } = 0;
+
+    /// <summary>
     /// Số lượt xem ảo
     /// </summary>
     public int ViewCount { get; set; } = 0;
@@ -80,7 +90,7 @@ public class Movie
     public string? FileUrl { get; set; }
 
     /// <summary>
-    /// Nguồn cào data: "ophim", "kkphim", "tmdb", "manual"
+    /// Nguồn cào data: "nguonc", "kkphim", "tmdb", "manual"
     /// </summary>
     public string? Source { get; set; }
 

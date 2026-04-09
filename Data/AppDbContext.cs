@@ -7,6 +7,14 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
+        this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+            return;
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.MultipleCollectionIncludeWarning));
     }
 
     public DbSet<Movie> Movies => Set<Movie>();
@@ -16,6 +24,8 @@ public class AppDbContext : DbContext
     public DbSet<WatchHistory> WatchHistories => Set<WatchHistory>();
     public DbSet<AdSlot> AdSlots => Set<AdSlot>();
     public DbSet<Banner> Banners => Set<Banner>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<UserRating> UserRatings => Set<UserRating>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +41,16 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.ExternalId);
             entity.HasIndex(e => e.Type);
             entity.HasIndex(e => e.Year);
+            // Index cho truy vấn trang chủ
+            entity.HasIndex(e => e.UpdatedAt);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.ImdbScore);
+            entity.HasIndex(e => e.Rating);
+            // Index phức hợp cho sắp xếp theo nhiều tiêu chí
+            entity.HasIndex(e => new { e.IsPublished, e.UpdatedAt });
+            entity.HasIndex(e => new { e.IsPublished, e.Rating });
+            entity.HasIndex(e => new { e.IsPublished, e.ImdbScore });
+            entity.HasIndex(e => new { e.Type, e.IsPublished, e.UpdatedAt });
         });
 
         // Episode - quan hệ 1-N với Movie
@@ -82,8 +102,36 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.EpisodeId)
                 .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.WatchHistories)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(e => e.WatchedAt);
             entity.HasIndex(e => e.UserId);
+        });
+
+        // User
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.Username).IsUnique();
+        });
+
+        // UserRating
+        modelBuilder.Entity<UserRating>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.UserId, e.MovieId }).IsUnique();
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Movie)
+                .WithMany()
+                .HasForeignKey(e => e.MovieId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // AdSlot

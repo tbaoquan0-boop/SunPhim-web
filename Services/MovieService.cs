@@ -82,6 +82,8 @@ public class MovieService : IMovieService
             Quality = m.Quality,
             Lang = m.Lang,
             ImdbScore = m.ImdbScore,
+            Rating = m.Rating,
+            RatingCount = m.RatingCount,
             ViewCount = m.ViewCount,
             Status = m.Status,
             Description = m.Description,
@@ -124,6 +126,7 @@ public class MovieService : IMovieService
 
     private static string GenerateSchemaMarkup(Movie m, string baseUrl)
     {
+        var ratingValue = m.Rating ?? m.ImdbScore;
         var schema = new
         {
             @context = "https://schema.org",
@@ -132,12 +135,13 @@ public class MovieService : IMovieService
             description = m.Description,
             image = m.Poster ?? m.Thumb,
             datePublished = m.Year?.ToString(),
-            aggregateRating = m.ImdbScore > 0 ? new
+            aggregateRating = ratingValue > 0 ? new
             {
                 @type = "AggregateRating",
-                ratingValue = m.ImdbScore,
+                ratingValue = ratingValue,
                 bestRating = 10,
-                worstRating = 1
+                worstRating = 1,
+                ratingCount = m.RatingCount > 0 ? m.RatingCount : (int?)null
             } : null,
             url = $"{baseUrl}/phim/{m.Slug}"
         };
@@ -146,18 +150,22 @@ public class MovieService : IMovieService
             new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
     }
 
-    public async Task<IEnumerable<Movie>> GetByTypeAsync(string type)
+    public async Task<IEnumerable<MovieListDto>> GetByTypeAsync(string type, string baseUrl)
     {
-        return await _context.Movies
+        var movies = await _context.Movies
             .AsNoTracking()
             .Where(m => m.Type == type && m.IsPublished)
             .OrderByDescending(m => m.UpdatedAt)
+            .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
+            .Include(m => m.Episodes)
             .ToListAsync();
+
+        return movies.Select(m => MapToListDto(m, baseUrl)).ToList();
     }
 
-    public async Task<IEnumerable<Movie>> GetByCategoryAsync(string categorySlug)
+    public async Task<IEnumerable<MovieListDto>> GetByCategoryAsync(string categorySlug, string baseUrl)
     {
-        return await _context.Movies
+        var movies = await _context.Movies
             .AsNoTracking()
             .Include(m => m.MovieCategories)
                 .ThenInclude(mc => mc.Category)
@@ -165,17 +173,23 @@ public class MovieService : IMovieService
                 && m.MovieCategories.Any(mc => mc.Category!.Slug == categorySlug))
             .OrderByDescending(m => m.UpdatedAt)
             .ToListAsync();
+
+        return movies.Select(m => MapToListDto(m, baseUrl)).ToList();
     }
 
-    public async Task<IEnumerable<Movie>> SearchAsync(string keyword)
+    public async Task<IEnumerable<MovieListDto>> SearchAsync(string keyword, string baseUrl)
     {
-        return await _context.Movies
+        var movies = await _context.Movies
             .AsNoTracking()
             .Where(m => m.IsPublished
                 && (m.Name.Contains(keyword)
                     || (m.OriginName != null && m.OriginName.Contains(keyword))))
             .OrderByDescending(m => m.ViewCount)
+            .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
+            .Include(m => m.Episodes)
             .ToListAsync();
+
+        return movies.Select(m => MapToListDto(m, baseUrl)).ToList();
     }
 
     public async Task<Movie> CreateAsync(Movie movie)
@@ -203,6 +217,8 @@ public class MovieService : IMovieService
         existing.Description = movie.Description;
         existing.Duration = movie.Duration;
         existing.ImdbScore = movie.ImdbScore;
+        existing.Rating = movie.Rating;
+        existing.RatingCount = movie.RatingCount;
         existing.ViewCount = movie.ViewCount;
         existing.Status = movie.Status;
         existing.Quality = movie.Quality;
@@ -236,7 +252,6 @@ public class MovieService : IMovieService
 
     public async Task<HomePageDto> GetHomePageDataAsync(string baseUrl)
     {
-        // Khong duoc Task.WhenAll nhieu query tren cung mot DbContext (EF khong thread-safe).
         var featured = await GetFeaturedMoviesAsync(baseUrl, 10);
         var trending = await GetTrendingMoviesAsync(baseUrl, 20);
         var newReleases = await GetNewReleasesAsync(baseUrl, 20);
@@ -259,12 +274,12 @@ public class MovieService : IMovieService
 
     public async Task<List<MovieListDto>> GetFeaturedMoviesAsync(string baseUrl, int limit = 10)
     {
-        // Lay phim co diem IMDB, neu khong du thi lay phim moi nhat
+        // Ưu tiên: có Rating > có ImdbScore > lượt xem cao
         var movies = await _context.Movies
             .AsNoTracking()
             .Where(m => m.IsPublished)
-            .OrderByDescending(m => m.ImdbScore > 0)
-            .ThenByDescending(m => m.ImdbScore)
+            .OrderByDescending(m => m.Rating ?? 0)
+            .ThenByDescending(m => m.ImdbScore ?? 0)
             .ThenByDescending(m => m.ViewCount)
             .Take(limit)
             .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
@@ -290,10 +305,14 @@ public class MovieService : IMovieService
 
     public async Task<List<MovieListDto>> GetNewReleasesAsync(string baseUrl, int limit = 20)
     {
+        // Ưu tiên năm mới nhất (2026, 2025), cùng năm thì ưu tiên UpdatedAt mới nhất
+        var currentYear = DateTime.UtcNow.Year;
         var movies = await _context.Movies
             .AsNoTracking()
-            .Where(m => m.IsPublished)
-            .OrderByDescending(m => m.CreatedAt)
+            .Where(m => m.IsPublished && m.Year != null)
+            .OrderByDescending(m => m.Year >= currentYear - 1)
+            .ThenByDescending(m => m.Year)
+            .ThenByDescending(m => m.UpdatedAt)
             .Take(limit)
             .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
             .Include(m => m.Episodes)
@@ -304,10 +323,12 @@ public class MovieService : IMovieService
 
     public async Task<List<MovieListDto>> GetTopRatedMoviesAsync(string baseUrl, int limit = 20)
     {
+        // NguonC thuong khong co ImdbScore/Rating — van hien thi "dieu cao" theo diem (neu co) roi ViewCount.
         var movies = await _context.Movies
             .AsNoTracking()
-            .Where(m => m.IsPublished && m.ImdbScore > 0)
-            .OrderByDescending(m => m.ImdbScore)
+            .Where(m => m.IsPublished)
+            .OrderByDescending(m => m.Rating ?? m.ImdbScore ?? 0)
+            .ThenByDescending(m => m.ViewCount)
             .Take(limit)
             .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
             .Include(m => m.Episodes)
@@ -318,10 +339,9 @@ public class MovieService : IMovieService
 
     public async Task<List<MovieListDto>> GetRandomFeaturedMoviesAsync(string baseUrl, int count = 5)
     {
-        // SQL Server khong ho tro EF.Functions.Random() - dung NewId() thay the
         var movies = await _context.Movies
             .AsNoTracking()
-            .Where(m => m.IsPublished)
+            .Where(m => m.IsPublished && m.Poster != null)
             .OrderBy(m => Guid.NewGuid())
             .Take(count)
             .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
@@ -364,8 +384,11 @@ public class MovieService : IMovieService
         return sections;
     }
 
-    public async Task<List<MovieListDto>> GetContinueWatchingAsync(string userId, string baseUrl, int limit = 10)
+    public async Task<List<MovieListDto>> GetContinueWatchingAsync(int? userId, string baseUrl, int limit = 10)
     {
+        if (userId == null)
+            return new List<MovieListDto>();
+
         var movieIds = await _context.WatchHistories
             .AsNoTracking()
             .Where(h => h.UserId == userId)
@@ -385,7 +408,6 @@ public class MovieService : IMovieService
             .Include(m => m.Episodes)
             .ToListAsync();
 
-        // Giu dung thu tu theo WatchedAt (latest first)
         var ordered = movieIds
             .Select(id => movies.FirstOrDefault(m => m.Id == id))
             .Where(m => m != null)
@@ -438,13 +460,16 @@ public class MovieService : IMovieService
             Quality = m.Quality,
             Lang = m.Lang,
             ImdbScore = m.ImdbScore,
+            Rating = m.Rating,
+            RatingCount = m.RatingCount,
             ViewCount = m.ViewCount,
             Status = m.Status,
             Categories = m.MovieCategories
                 .Where(mc => mc.Category != null)
                 .Select(mc => mc.Category!.Name)
                 .ToList(),
-            EpisodeCount = m.Episodes.Count
+            EpisodeCount = m.Episodes.Count,
+            UpdatedAt = m.UpdatedAt
         };
     }
 }

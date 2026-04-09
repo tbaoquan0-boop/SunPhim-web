@@ -13,10 +13,13 @@ public class MovieListDto
     public string? Quality { get; set; }
     public string? Lang { get; set; }
     public double? ImdbScore { get; set; }
+    public double? Rating { get; set; }
+    public int RatingCount { get; set; }
     public int ViewCount { get; set; }
     public string? Status { get; set; }
     public List<string> Categories { get; set; } = new();
     public int EpisodeCount { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class MovieDetailDto : MovieListDto

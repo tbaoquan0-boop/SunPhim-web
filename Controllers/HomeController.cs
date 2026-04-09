@@ -26,6 +26,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
     public async Task<IActionResult> GetHomePage()
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -34,14 +35,16 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("featured")]
-    public async Task<IActionResult> GetFeatured()
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "limit" })]
+    public async Task<IActionResult> GetFeatured([FromQuery] int limit = 10)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
-        var movies = await _movieService.GetFeaturedMoviesAsync(baseUrl, 10);
+        var movies = await _movieService.GetFeaturedMoviesAsync(baseUrl, limit);
         return Ok(movies);
     }
 
     [HttpGet("trending")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "limit" })]
     public async Task<IActionResult> GetTrending([FromQuery] int limit = 20)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -50,6 +53,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("new-releases")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "limit" })]
     public async Task<IActionResult> GetNewReleases([FromQuery] int limit = 20)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -58,6 +62,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("top-rated")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "limit" })]
     public async Task<IActionResult> GetTopRated([FromQuery] int limit = 20)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -66,6 +71,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("by-category")]
+    [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "limit" })]
     public async Task<IActionResult> GetByCategory([FromQuery] int limit = 12)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -74,6 +80,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("random-featured")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "count" })]
     public async Task<IActionResult> GetRandomFeatured([FromQuery] int count = 5)
     {
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -82,9 +89,9 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("continue-watching")]
-    public async Task<IActionResult> GetContinueWatching([FromQuery] string? userId)
+    public async Task<IActionResult> GetContinueWatching([FromQuery] int? userId)
     {
-        if (string.IsNullOrWhiteSpace(userId))
+        if (userId == null)
             return Ok(new List<MovieListDto>());
 
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -93,6 +100,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet("hero-banner")]
+    [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> GetHeroBanner()
     {
         var banner = await _adService.GetActiveBannerAsync("hero");
