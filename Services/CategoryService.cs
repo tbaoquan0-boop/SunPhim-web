@@ -4,7 +4,7 @@ using SunPhim.Models;
 
 namespace SunPhim.Services;
 
-public class CategoryService : ICategoryService
+public class CategoryService
 {
     private readonly AppDbContext _context;
 
@@ -44,39 +44,5 @@ public class CategoryService : ICategoryService
         return await _context.Categories
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Slug == slug && c.IsActive);
-    }
-
-    public async Task<Category> CreateAsync(Category category)
-    {
-        category.CreatedAt = DateTime.UtcNow;
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-        return category;
-    }
-
-    public async Task<Category?> UpdateAsync(int id, Category category)
-    {
-        var existing = await _context.Categories.FindAsync(id);
-        if (existing == null) return null;
-
-        existing.Name = category.Name;
-        existing.Slug = category.Slug;
-        existing.Description = category.Description;
-        existing.SortOrder = category.SortOrder;
-        existing.IsFeatured = category.IsFeatured;
-        existing.IsActive = category.IsActive;
-
-        await _context.SaveChangesAsync();
-        return existing;
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var category = await _context.Categories.FindAsync(id);
-        if (category == null) return false;
-
-        _context.Categories.Remove(category);
-        await _context.SaveChangesAsync();
-        return true;
     }
 }

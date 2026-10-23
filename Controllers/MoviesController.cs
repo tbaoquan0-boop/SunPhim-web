@@ -8,10 +8,10 @@ namespace SunPhim.Controllers;
 [Route("api/[controller]")]
 public class MoviesController : ControllerBase
 {
-    private readonly IMovieService _movieService;
+    private readonly MovieService _movieService;
     private readonly IConfiguration _config;
 
-    public MoviesController(IMovieService movieService, IConfiguration config)
+    public MoviesController(MovieService movieService, IConfiguration config)
     {
         _movieService = movieService;
         _config = config;
@@ -34,7 +34,8 @@ public class MoviesController : ControllerBase
         var movie = await _movieService.GetByIdAsync(id);
         if (movie == null) return NotFound(new { message = "Không tìm thấy phim" });
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
-        return Ok(_movieService.GetDetailBySlugAsync(movie.Slug, baseUrl).Result);
+        var detail = await _movieService.GetDetailBySlugAsync(movie.Slug, baseUrl);
+        return Ok(detail);
     }
 
     [HttpGet("slug/{slug}")]
@@ -60,31 +61,5 @@ public class MoviesController : ControllerBase
             return BadRequest(new { message = "Từ khóa không hợp lệ" });
         var baseUrl = _config["App:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}";
         return Ok(await _movieService.SearchAsync(keyword, baseUrl));
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Models.Movie movie)
-    {
-        if (string.IsNullOrWhiteSpace(movie.Name) || string.IsNullOrWhiteSpace(movie.Slug))
-            return BadRequest(new { message = "Tên và Slug là bắt buộc" });
-
-        var created = await _movieService.CreateAsync(movie);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Models.Movie movie)
-    {
-        var updated = await _movieService.UpdateAsync(id, movie);
-        if (updated == null) return NotFound(new { message = "Không tìm thấy phim" });
-        return Ok(updated);
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var deleted = await _movieService.DeleteAsync(id);
-        if (!deleted) return NotFound(new { message = "Không tìm thấy phim" });
-        return NoContent();
     }
 }

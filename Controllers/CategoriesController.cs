@@ -7,9 +7,9 @@ namespace SunPhim.Controllers;
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase
 {
-    private readonly ICategoryService _categoryService;
+    private readonly CategoryService _categoryService;
 
-    public CategoriesController(ICategoryService categoryService)
+    public CategoriesController(CategoryService categoryService)
     {
         _categoryService = categoryService;
     }
@@ -40,31 +40,5 @@ public class CategoriesController : ControllerBase
         var category = await _categoryService.GetBySlugAsync(slug);
         if (category == null) return NotFound(new { message = "Không tìm thấy thể loại" });
         return Ok(category);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Models.Category category)
-    {
-        if (string.IsNullOrWhiteSpace(category.Name) || string.IsNullOrWhiteSpace(category.Slug))
-            return BadRequest(new { message = "Tên và Slug là bắt buộc" });
-
-        var created = await _categoryService.CreateAsync(category);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Models.Category category)
-    {
-        var updated = await _categoryService.UpdateAsync(id, category);
-        if (updated == null) return NotFound(new { message = "Không tìm thấy thể loại" });
-        return Ok(updated);
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var deleted = await _categoryService.DeleteAsync(id);
-        if (!deleted) return NotFound(new { message = "Không tìm thấy thể loại" });
-        return NoContent();
     }
 }

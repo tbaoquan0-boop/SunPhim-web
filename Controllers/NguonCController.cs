@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SunPhim.Data;
 using SunPhim.Models.Crawler;
 using SunPhim.Services.Crawler;
 
@@ -8,13 +10,63 @@ namespace SunPhim.Controllers;
 [Route("api/nguonc")]
 public class NguonCController : ControllerBase
 {
+    private readonly AppDbContext _ctx;
     private readonly INguonCService _nguonc;
     private readonly ILogger<NguonCController> _log;
 
-    public NguonCController(INguonCService nguonc, ILogger<NguonCController> log)
+    public NguonCController(AppDbContext ctx, INguonCService nguonc, ILogger<NguonCController> log)
     {
+        _ctx = ctx;
         _nguonc = nguonc;
         _log = log;
+    }
+
+    [HttpDelete("reset")]
+    public async Task<IActionResult> ResetAndReimport([FromQuery] int pages = 5, [FromQuery] bool startCrawl = true)
+    {
+        try
+        {
+            _log.LogInformation("Bắt đầu reset toàn bộ phim và re-import...");
+            var epCount = await _ctx.Episodes.CountAsync();
+            var mcCount = await _ctx.MovieCategories.CountAsync();
+            var mvCount = await _ctx.Movies.CountAsync();
+
+            await _ctx.Episodes.ExecuteDeleteAsync();
+            await _ctx.MovieCategories.ExecuteDeleteAsync();
+            await _ctx.Movies.ExecuteDeleteAsync();
+
+            if (!startCrawl)
+            {
+                return Ok(new { deleted = new { episodes = epCount, movieCategories = mcCount, movies = mvCount }, message = "Đã xóa xong." });
+            }
+
+            int synced = 0, totalNew = 0, totalUpd = 0, totalEp = 0;
+            for (int page = 1; page <= pages; page++)
+            {
+                var r = await _nguonc.CrawlNewUpdatesAsync(page);
+                if (r.Success)
+                {
+                    totalNew += r.NewMovies;
+                    totalUpd += r.UpdatedMovies;
+                    totalEp += r.EpisodesProcessed;
+                    synced++;
+                }
+                else break;
+                await Task.Delay(500);
+            }
+
+            return Ok(new
+            {
+                deleted = new { episodes = epCount, movieCategories = mcCount, movies = mvCount },
+                crawled = new { pages = synced, newMovies = totalNew, updated = totalUpd, episodes = totalEp },
+                message = $"Đã reset và re-import {synced} trang: {totalNew} mới, {totalEp} tập."
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Reset thất bại");
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 
     [HttpPost("crawl/{slug}")]

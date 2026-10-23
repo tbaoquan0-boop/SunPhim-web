@@ -1,0 +1,17 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/publish_web
+**/_publish_check
+**/*.zip
+**/sunphim-ui
+**/start_dev.py
+**/crawler_cache.json
+**/__pycache__
+**/*.pyc
+**/node_modules
+README.md
+TODO.md

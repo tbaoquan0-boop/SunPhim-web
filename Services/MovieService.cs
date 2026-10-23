@@ -6,7 +6,7 @@ using SunPhim.Models.DTOs;
 
 namespace SunPhim.Services;
 
-public class MovieService : IMovieService
+public class MovieService
 {
     private readonly AppDbContext _context;
 
@@ -384,38 +384,11 @@ public class MovieService : IMovieService
         return sections;
     }
 
-    public async Task<List<MovieListDto>> GetContinueWatchingAsync(int? userId, string baseUrl, int limit = 10)
+    public Task<List<MovieListDto>> GetContinueWatchingAsync(int? userId, string baseUrl, int limit = 10)
     {
-        if (userId == null)
-            return new List<MovieListDto>();
-
-        var movieIds = await _context.WatchHistories
-            .AsNoTracking()
-            .Where(h => h.UserId == userId)
-            .OrderByDescending(h => h.WatchedAt)
-            .Select(h => h.MovieId)
-            .Distinct()
-            .Take(limit)
-            .ToListAsync();
-
-        if (movieIds.Count == 0)
-            return new List<MovieListDto>();
-
-        var movies = await _context.Movies
-            .AsNoTracking()
-            .Where(m => movieIds.Contains(m.Id))
-            .Include(m => m.MovieCategories).ThenInclude(mc => mc.Category)
-            .Include(m => m.Episodes)
-            .ToListAsync();
-
-        var ordered = movieIds
-            .Select(id => movies.FirstOrDefault(m => m.Id == id))
-            .Where(m => m != null)
-            .Select(m => m!)
-            .ToList();
-
-        return ordered.Select(m => MapToListDto(m, baseUrl)).ToList();
+        return Task.FromResult(new List<MovieListDto>());
     }
+
 
     private async Task<List<MovieListDto>> GetSeriesMoviesAsync(string baseUrl, int limit)
     {

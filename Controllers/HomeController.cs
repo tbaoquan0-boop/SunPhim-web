@@ -8,20 +8,12 @@ namespace SunPhim.Controllers;
 [Route("api/[controller]")]
 public class HomeController : ControllerBase
 {
-    private readonly IMovieService _movieService;
-    private readonly ICategoryService _categoryService;
-    private readonly IAdService _adService;
+    private readonly MovieService _movieService;
     private readonly IConfiguration _config;
 
-    public HomeController(
-        IMovieService movieService,
-        ICategoryService categoryService,
-        IAdService adService,
-        IConfiguration config)
+    public HomeController(MovieService movieService, IConfiguration config)
     {
         _movieService = movieService;
-        _categoryService = categoryService;
-        _adService = adService;
         _config = config;
     }
 
@@ -101,9 +93,8 @@ public class HomeController : ControllerBase
 
     [HttpGet("hero-banner")]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
-    public async Task<IActionResult> GetHeroBanner()
+    public IActionResult GetHeroBanner()
     {
-        var banner = await _adService.GetActiveBannerAsync("hero");
-        return Ok(banner);
+        return Ok((object?)null);
     }
 }

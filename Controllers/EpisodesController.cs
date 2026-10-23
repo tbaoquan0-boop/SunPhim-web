@@ -7,9 +7,9 @@ namespace SunPhim.Controllers;
 [Route("api/[controller]")]
 public class EpisodesController : ControllerBase
 {
-    private readonly IEpisodeService _episodeService;
+    private readonly EpisodeService _episodeService;
 
-    public EpisodesController(IEpisodeService episodeService)
+    public EpisodesController(EpisodeService episodeService)
     {
         _episodeService = episodeService;
     }
@@ -34,32 +34,6 @@ public class EpisodesController : ControllerBase
         var episode = await _episodeService.GetByMovieAndNumberAsync(movieId, episodeNumber);
         if (episode == null) return NotFound(new { message = "Không tìm thấy tập phim" });
         return Ok(episode);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Models.Episode episode)
-    {
-        if (episode.MovieId <= 0)
-            return BadRequest(new { message = "MovieId không hợp lệ" });
-
-        var created = await _episodeService.CreateAsync(episode);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Models.Episode episode)
-    {
-        var updated = await _episodeService.UpdateAsync(id, episode);
-        if (updated == null) return NotFound(new { message = "Không tìm thấy tập phim" });
-        return Ok(updated);
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var deleted = await _episodeService.DeleteAsync(id);
-        if (!deleted) return NotFound(new { message = "Không tìm thấy tập phim" });
-        return NoContent();
     }
 
     [HttpPost("{id:int}/view")]

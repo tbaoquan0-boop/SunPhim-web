@@ -4,7 +4,7 @@ using SunPhim.Models;
 
 namespace SunPhim.Services;
 
-public class EpisodeService : IEpisodeService
+public class EpisodeService
 {
     private readonly AppDbContext _context;
 
@@ -35,42 +35,6 @@ public class EpisodeService : IEpisodeService
         return await _context.Episodes
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.MovieId == movieId && e.EpisodeNumber == episodeNumber);
-    }
-
-    public async Task<Episode> CreateAsync(Episode episode)
-    {
-        episode.CreatedAt = DateTime.UtcNow;
-        episode.UpdatedAt = DateTime.UtcNow;
-        _context.Episodes.Add(episode);
-        await _context.SaveChangesAsync();
-        return episode;
-    }
-
-    public async Task<Episode?> UpdateAsync(int id, Episode episode)
-    {
-        var existing = await _context.Episodes.FindAsync(id);
-        if (existing == null) return null;
-
-        existing.Name = episode.Name;
-        existing.EpisodeNumber = episode.EpisodeNumber;
-        existing.EmbedLink = episode.EmbedLink;
-        existing.FileUrl = episode.FileUrl;
-        existing.Server = episode.Server;
-        existing.Status = episode.Status;
-        existing.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        return existing;
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var episode = await _context.Episodes.FindAsync(id);
-        if (episode == null) return false;
-
-        _context.Episodes.Remove(episode);
-        await _context.SaveChangesAsync();
-        return true;
     }
 
     public async Task IncrementViewAsync(int episodeId)

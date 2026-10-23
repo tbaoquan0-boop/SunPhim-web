@@ -21,11 +21,6 @@ public class AppDbContext : DbContext
     public DbSet<Episode> Episodes => Set<Episode>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<MovieCategory> MovieCategories => Set<MovieCategory>();
-    public DbSet<WatchHistory> WatchHistories => Set<WatchHistory>();
-    public DbSet<AdSlot> AdSlots => Set<AdSlot>();
-    public DbSet<Banner> Banners => Set<Banner>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<UserRating> UserRatings => Set<UserRating>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,73 +83,6 @@ public class AppDbContext : DbContext
                 .WithMany(c => c.MovieCategories)
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // WatchHistory
-        modelBuilder.Entity<WatchHistory>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasOne(e => e.Movie)
-                .WithMany()
-                .HasForeignKey(e => e.MovieId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(e => e.Episode)
-                .WithMany()
-                .HasForeignKey(e => e.EpisodeId)
-                .OnDelete(DeleteBehavior.SetNull);
-            entity.HasOne(e => e.User)
-                .WithMany(u => u.WatchHistories)
-                .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.HasIndex(e => e.WatchedAt);
-            entity.HasIndex(e => e.UserId);
-        });
-
-        // User
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-            entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasIndex(e => e.Username).IsUnique();
-        });
-
-        // UserRating
-        modelBuilder.Entity<UserRating>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => new { e.UserId, e.MovieId }).IsUnique();
-            entity.HasOne(e => e.User)
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.Movie)
-                .WithMany()
-                .HasForeignKey(e => e.MovieId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // AdSlot
-        modelBuilder.Entity<AdSlot>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Position).IsRequired().HasMaxLength(100);
-            entity.HasIndex(e => e.Position);
-            entity.HasIndex(e => e.IsActive);
-        });
-
-        // Banner
-        modelBuilder.Entity<Banner>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.ImageUrl).IsRequired().HasMaxLength(2000);
-            entity.HasOne(e => e.AdSlot)
-                .WithMany(s => s.Banners)
-                .HasForeignKey(e => e.AdSlotId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.HasIndex(e => e.IsActive);
         });
     }
 }

@@ -2,6 +2,14 @@
 [Bb]in/
 [Oo]bj/
 [Oo]ut/
+publish_web/
+_publish_check/
+*.zip
+crawler_cache.json
+__pycache__/
+*.pyc
+start_dev.py
+sunphim-ui/
 
 # .NET
 *.user
